@@ -13,12 +13,14 @@
   }
   let action: Action = Action.NONE;
 
-  let selected_date;
-  let qrcaption;
-  let message;
-  let qrlink;
+  let selected_date: string = dayjs("2023-01-30").format("YYYY-MM-DD");
   let messageAndLink = { qrcaption: null, qrlink: null, message: null };
-  selected_date = dayjs("2023-01-27").format("YYYY-MM-DD");
+
+  $: {
+    if (selected_date !== null) {
+      getMessageAndLink();
+    }
+  }
 
   function getMessageAndLink() {
     let res = axios({
@@ -53,34 +55,94 @@
       },
     }).then(() => {
       action = Action.VIEW;
+      getMessageAndLink();
     });
   }
 </script>
 
 <div class="flex flex-col h-screen gap-4 md:gap-10 items-center justify-center">
-  <div class="w-full grid grid-cols-10 gap-2">
-    <input
-      bind:value={selected_date}
-      type="date"
-      class="self-center col-span-8 bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-pink-500"
-    />
-    <button class="col-span-2" on:click={getMessageAndLink}>
+  <svg
+    class="h-20"
+    fill="#000000"
+    width="100%"
+    height="100%"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+    ><path
+      id="secondary"
+      d="M3,9V20a1,1,0,0,0,1,1H20a1,1,0,0,0,1-1V9Zm11.06,5.91c-.05.06-.09.12-.15.18L12,17l-1.91-1.91C10,15,10,15,9.94,14.91a1.23,1.23,0,0,1,1.89-1.55,1.18,1.18,0,0,1,.17.22,1.18,1.18,0,0,1,.17-.22,1.23,1.23,0,0,1,1.89,1.55Z"
+      style="fill: rgb(236, 72, 153); stroke-width: 2;"
+    /><path
+      id="primary"
+      d="M20,21H4a1,1,0,0,1-1-1V9H21V20A1,1,0,0,1,20,21ZM21,5a1,1,0,0,0-1-1H4A1,1,0,0,0,3,5V9H21ZM16,3V6M8,3V6m6.06,8.91a1.23,1.23,0,0,0-1.89-1.55,1.18,1.18,0,0,0-.17.22,1.18,1.18,0,0,0-.17-.22,1.23,1.23,0,0,0-1.89,1.55c.05.06.09.12.15.18L12,17l1.91-1.91C14,15,14,15,14.06,14.91Z"
+      style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"
+    /></svg
+  >
+  <div class="w-full grid grid-cols-10 gap-1">
+    <button
+      on:click={() => {
+        selected_date = dayjs(selected_date)
+          .subtract(1, "day")
+          .format("YYYY-MM-DD");
+      }}
+    >
       <svg
-        fill="#000000"
         width="100%"
         height="100%"
         viewBox="0 0 24 24"
+        fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        ><path
-          id="secondary"
-          d="M3,9V20a1,1,0,0,0,1,1H20a1,1,0,0,0,1-1V9Zm11.06,5.91c-.05.06-.09.12-.15.18L12,17l-1.91-1.91C10,15,10,15,9.94,14.91a1.23,1.23,0,0,1,1.89-1.55,1.18,1.18,0,0,1,.17.22,1.18,1.18,0,0,1,.17-.22,1.23,1.23,0,0,1,1.89,1.55Z"
-          style="fill: rgb(236, 72, 153); stroke-width: 2;"
-        /><path
-          id="primary"
-          d="M20,21H4a1,1,0,0,1-1-1V9H21V20A1,1,0,0,1,20,21ZM21,5a1,1,0,0,0-1-1H4A1,1,0,0,0,3,5V9H21ZM16,3V6M8,3V6m6.06,8.91a1.23,1.23,0,0,0-1.89-1.55,1.18,1.18,0,0,0-.17.22,1.18,1.18,0,0,0-.17-.22,1.23,1.23,0,0,0-1.89,1.55c.05.06.09.12.15.18L12,17l1.91-1.91C14,15,14,15,14.06,14.91Z"
-          style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"
-        /></svg
       >
+        <path
+          d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+          stroke="#292D32"
+          stroke-width="1.5"
+          stroke-miterlimit="10"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M13.26 15.53L9.73999 12L13.26 8.46997"
+          stroke="#292D32"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </button>
+    <input
+      bind:value={selected_date}
+      type="date"
+      class="self-center col-start-2 col-span-8 bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-pink-500"
+    />
+    <button
+      on:click={() => {
+        selected_date = dayjs(selected_date).add(1, "day").format("YYYY-MM-DD");
+      }}
+    >
+      <svg
+        width="100%"
+        height="100%"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+          stroke="#292D32"
+          stroke-width="1.5"
+          stroke-miterlimit="10"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M10.74 15.53L14.26 12L10.74 8.46997"
+          stroke="#292D32"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
     </button>
   </div>
   {#if action === Action.VIEW}
