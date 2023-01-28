@@ -1,7 +1,7 @@
 <script lang="ts">
   import GetKey from "./lib/GetKey.svelte";
   import ViewNotes from "./lib/ViewNotes.svelte";
-  let key: string = "test";
+  let key: string = "";
 </script>
 
 <main>
@@ -10,7 +10,7 @@
       {#if !key}
         <GetKey bind:key />
       {:else}
-        <ViewNotes />
+        <ViewNotes bind:key />
       {/if}
     </div>
   </div>

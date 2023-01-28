@@ -1,5 +1,5 @@
 <script lang="ts">
-  export let key = "";
+  export let key;
   let field_text: string;
 </script>
 

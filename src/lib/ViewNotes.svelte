@@ -1,22 +1,44 @@
 <script lang="ts">
   import dayjs from "dayjs";
+  import axios from "axios";
+  import { fromShortcode } from "../util/CalcInstagramID";
+
+  export let key;
+
+  let action = "add";
+
   let selected_date;
-
-  $: {
-    console.log(`Updated date: ${dayjs(selected_date).format("YYYY-MM-DD")}`);
-  }
-
+  let qrcaption;
+  let message;
+  let qrlink;
+  let messageAndLink = { qrcaption: null, qrlink: null, message: null };
   selected_date = dayjs().format("YYYY-MM-DD");
+
+  function getMessageAndLink() {
+    let res = axios({
+      method: "get",
+      url: `${import.meta.env.VITE_API_URL}/dml/${dayjs(selected_date).format(
+        "YYYY-MM-DD"
+      )}`,
+      withCredentials: false,
+      headers: {
+        "x-api-key": key,
+      },
+    }).then((res) => {
+      action = "view";
+      messageAndLink = res.data;
+    });
+  }
 </script>
 
-<div class="grid grid-cols-1 place-items-center h-screen">
+<div class="flex flex-col h-screen gap-4 md:gap-10 items-center justify-center">
   <div class="w-full grid grid-cols-10 gap-2">
     <input
       bind:value={selected_date}
       type="date"
-      class="col-span-8 bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-pink-500"
+      class="self-center col-span-8 bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-pink-500"
     />
-    <button class="col-span-2">
+    <button class="col-span-2" on:click={getMessageAndLink}>
       <svg
         fill="#000000"
         width="100%"
@@ -35,11 +57,48 @@
       >
     </button>
   </div>
+  {#if action === "view"}
+    <p class="font-serif">View Note & Link</p>
+  {:else if action === "edit"}
+    <p class="font-serif">Edit Note & Link</p>
+  {:else if action === "add"}
+    <p class="font-serif">Add Note & Link</p>
+  {/if}
+
+  {#if action !== "none"}
+    <div class="w-full">
+      <label for="message">Message:</label>
+      <textarea
+        id="message"
+        bind:value={messageAndLink.message}
+        class="col-span-8 bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-pink-500"
+        placeholder="Main message on SNS"
+      />
+    </div>
+    <div class="w-full">
+      <label for="qrcaption">QR Caption:</label>
+      <input
+        id="qrcaption"
+        bind:value={messageAndLink.qrcaption}
+        class="col-span-8 bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-pink-500"
+        placeholder="Text under QR code"
+      />
+    </div>
+    <div class="w-full">
+      <label for="qrlink">QR Link</label>
+      <input
+        id="qrlink"
+        bind:value={messageAndLink.qrlink}
+        class="col-span-8 bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-pink-500"
+        placeholder="Link converted to QR code"
+      />
+    </div>
+    <button
+      class="w-full bg-transparent hover:bg-pink-500 text-pink-700 font-semibold hover:text-white py-2 px-4 border border-pink-500 hover:border-transparent rounded"
+      >Apply</button
+    >
+  {/if}
 </div>
 
 <style>
-  input[type="date"]::-webkit-inner-spin-button,
-  input[type="date"]::-webkit-calendar-picker-indicator {
-    opacity: 0;
-  }
 </style>
