@@ -13,7 +13,7 @@
   }
   let action: Action = Action.NONE;
 
-  let selected_date: string = dayjs("2023-01-30").format("YYYY-MM-DD");
+  let selected_date: string = dayjs().format("YYYY-MM-DD");
   let messageAndLink = { qrcaption: null, qrlink: null, message: null };
 
   $: {
@@ -60,7 +60,9 @@
   }
 </script>
 
-<div class="flex flex-col h-screen gap-4 md:gap-10 items-center justify-center">
+<div
+  class="flex flex-col h-screen gap-4 md:gap-10 items-center justify-start pt-32"
+>
   <svg
     class="h-20"
     fill="#000000"

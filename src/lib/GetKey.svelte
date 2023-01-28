@@ -1,6 +1,12 @@
 <script lang="ts">
-  export let key;
-  let field_text: string;
+  export let key: string;
+  let field_text: string = "";
+
+  $: {
+    if (field_text.length > 10) {
+      key = field_text;
+    }
+  }
 </script>
 
 <form on:submit|preventDefault={() => (key = field_text)}>
