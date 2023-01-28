@@ -4,15 +4,21 @@
   import { fromShortcode } from "../util/CalcInstagramID";
 
   export let key;
-
-  let action = "add";
+  enum Action {
+    NONE,
+    VIEW,
+    NEW,
+    ADD,
+    EDIT,
+  }
+  let action: Action = Action.NONE;
 
   let selected_date;
   let qrcaption;
   let message;
   let qrlink;
   let messageAndLink = { qrcaption: null, qrlink: null, message: null };
-  selected_date = dayjs().format("YYYY-MM-DD");
+  selected_date = dayjs("2023-01-27").format("YYYY-MM-DD");
 
   function getMessageAndLink() {
     let res = axios({
@@ -20,13 +26,33 @@
       url: `${import.meta.env.VITE_API_URL}/dml/${dayjs(selected_date).format(
         "YYYY-MM-DD"
       )}`,
-      withCredentials: false,
       headers: {
         "x-api-key": key,
       },
-    }).then((res) => {
-      action = "view";
-      messageAndLink = res.data;
+    })
+      .then((res) => {
+        action = Action.VIEW;
+        messageAndLink = res.data;
+      })
+      .catch((err) => {
+        if (err.response.status === 404) {
+          action = Action.NEW;
+        }
+      });
+  }
+
+  function addMessageAndLink() {
+    let res = axios({
+      method: "post",
+      url: `${import.meta.env.VITE_API_URL}/dml/${dayjs(selected_date).format(
+        "YYYY-MM-DD"
+      )}`,
+      data: messageAndLink,
+      headers: {
+        "x-api-key": key,
+      },
+    }).then(() => {
+      action = Action.VIEW;
     });
   }
 </script>
@@ -57,19 +83,22 @@
       >
     </button>
   </div>
-  {#if action === "view"}
+  {#if action === Action.VIEW}
     <p class="font-serif">View Note & Link</p>
-  {:else if action === "edit"}
+  {:else if action === Action.EDIT}
     <p class="font-serif">Edit Note & Link</p>
-  {:else if action === "add"}
+  {:else if action === Action.ADD}
     <p class="font-serif">Add Note & Link</p>
+  {:else if action === Action.NEW}
+    <p class="font-serif">No Message & Link For This Date</p>
   {/if}
 
-  {#if action !== "none"}
+  {#if action !== Action.NONE && action !== Action.NEW}
     <div class="w-full">
       <label for="message">Message:</label>
       <textarea
         id="message"
+        readonly={action === Action.VIEW}
         bind:value={messageAndLink.message}
         class="col-span-8 bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-pink-500"
         placeholder="Main message on SNS"
@@ -79,6 +108,7 @@
       <label for="qrcaption">QR Caption:</label>
       <input
         id="qrcaption"
+        readonly={action === Action.VIEW}
         bind:value={messageAndLink.qrcaption}
         class="col-span-8 bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-pink-500"
         placeholder="Text under QR code"
@@ -88,14 +118,50 @@
       <label for="qrlink">QR Link</label>
       <input
         id="qrlink"
+        readonly={action === Action.VIEW}
         bind:value={messageAndLink.qrlink}
         class="col-span-8 bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-pink-500"
         placeholder="Link converted to QR code"
       />
     </div>
+    {#if action === Action.VIEW}
+      <div class="w-full pt-10 grid grid-cols-2 gap-4">
+        <button
+          on:click={() => {
+            action = Action.EDIT;
+          }}
+          class="w-full bg-transparent hover:bg-indigo-500 text-indigo-700 font-semibold hover:text-white py-2 px-4 border border-indigo-500 hover:border-transparent rounded"
+          >Edit</button
+        >
+        <button
+          class="w-full bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded"
+          >Delete</button
+        >
+      </div>
+    {/if}
+    {#if [Action.EDIT, Action.ADD].includes(action)}
+      <div class="w-full pt-10 grid grid-cols-5 gap-4">
+        <button
+          on:click={getMessageAndLink}
+          class="col-span-2 w-full bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded"
+          >Cancel</button
+        >
+        <button
+          on:click={addMessageAndLink}
+          class="col-span-3 w-full bg-transparent hover:bg-indigo-500 text-indigo-700 font-semibold hover:text-white py-2 px-4 border border-indigo-500 hover:border-transparent rounded"
+          >Apply</button
+        >
+      </div>
+    {/if}
+  {/if}
+  {#if action === Action.NEW}
     <button
-      class="w-full bg-transparent hover:bg-pink-500 text-pink-700 font-semibold hover:text-white py-2 px-4 border border-pink-500 hover:border-transparent rounded"
-      >Apply</button
+      on:click={() => {
+        messageAndLink = { qrcaption: null, qrlink: null, message: null };
+        action = Action.ADD;
+      }}
+      class="mt-10 w-full bg-transparent hover:bg-emerald-500 text-emerald-700 font-semibold hover:text-white py-2 px-4 border border-emerald-500 hover:border-transparent rounded"
+      >Add</button
     >
   {/if}
 </div>

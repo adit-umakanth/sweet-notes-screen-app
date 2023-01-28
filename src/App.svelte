@@ -1,7 +1,7 @@
 <script lang="ts">
   import GetKey from "./lib/GetKey.svelte";
   import ViewNotes from "./lib/ViewNotes.svelte";
-  let key: string = "";
+  let key: string;
 </script>
 
 <main>
