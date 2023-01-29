@@ -8,11 +8,7 @@ Table of Contents
 - [Deployment](#deployment)
 - [Screenshots](#screenshots)
 
-&nbsp;
-
 ---
-
-&nbsp;
 
 ## About This App
 
@@ -20,11 +16,7 @@ This web app is the interface to the [DML API](https://github.com/adit-umakanth/
 
 The web app is made with [Svelte](https://svelte.dev/) + [Vite](https://vitejs.dev/) and uses [axios](https://axios-http.com/) to make HTTP requests to the API endpoint to view, edit, and delete message.
 
-&nbsp;
-
 ---
-
-&nbsp;
 
 ## Deployment
 
@@ -32,11 +24,7 @@ While this app is deployed online with [Firebase Hosting](https://firebase.googl
 
 To use this app, the DML API must also be deployed and that API key can be used to interact with the app.
 
-&nbsp;
-
 ---
-
-&nbsp;
 
 ## Screenshots
 
