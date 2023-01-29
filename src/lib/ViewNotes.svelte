@@ -14,7 +14,7 @@
   let action: Action = Action.NONE;
 
   let selected_date: string = dayjs().format("YYYY-MM-DD");
-  let messageAndLink = { qrcaption: null, qrlink: null, message: null };
+  let messageAndLink = { qrcaption: "", qrlink: "", message: "" };
 
   $: {
     if (selected_date !== null) {
@@ -23,7 +23,7 @@
   }
 
   function getMessageAndLink() {
-    let res = axios({
+    axios({
       method: "get",
       url: `${import.meta.env.VITE_API_URL}/dml/${dayjs(selected_date).format(
         "YYYY-MM-DD"
@@ -38,13 +38,14 @@
       })
       .catch((err) => {
         if (err.response.status === 404) {
+          messageAndLink = { qrcaption: "", qrlink: "", message: "" };
           action = Action.NEW;
         }
       });
   }
 
   function addMessageAndLink() {
-    let res = axios({
+    axios({
       method: "post",
       url: `${import.meta.env.VITE_API_URL}/dml/${dayjs(selected_date).format(
         "YYYY-MM-DD"
@@ -53,10 +54,19 @@
       headers: {
         "x-api-key": key,
       },
-    }).then(() => {
-      action = Action.VIEW;
-      getMessageAndLink();
-    });
+    }).then(() => getMessageAndLink());
+  }
+
+  function deleteMessageAndLink() {
+    axios({
+      method: "delete",
+      url: `${import.meta.env.VITE_API_URL}/dml/${dayjs(selected_date).format(
+        "YYYY-MM-DD"
+      )}`,
+      headers: {
+        "x-api-key": key,
+      },
+    }).then(() => getMessageAndLink());
   }
 </script>
 
@@ -187,6 +197,9 @@
         class="col-span-8 bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-pink-500"
         placeholder="Link converted to QR code"
       />
+      {#if messageAndLink.qrlink.length >= 104}<p class="text-red-600">
+          Link is over 104 characters
+        </p>{/if}
     </div>
     {#if action === Action.VIEW}
       <div class="w-full pt-10 grid grid-cols-2 gap-4">
@@ -198,6 +211,7 @@
           >Edit</button
         >
         <button
+          on:click={deleteMessageAndLink}
           class="w-full bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded"
           >Delete</button
         >
@@ -210,18 +224,18 @@
           class="col-span-2 w-full bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded"
           >Cancel</button
         >
-        <button
-          on:click={addMessageAndLink}
-          class="col-span-3 w-full bg-transparent hover:bg-indigo-500 text-indigo-700 font-semibold hover:text-white py-2 px-4 border border-indigo-500 hover:border-transparent rounded"
-          >Apply</button
-        >
+        {#if messageAndLink.qrlink.length < 104}
+          <button
+            on:click={addMessageAndLink}
+            class="col-span-3 w-full bg-transparent hover:bg-indigo-500 text-indigo-700 font-semibold hover:text-white py-2 px-4 border border-indigo-500 hover:border-transparent rounded"
+            >Apply</button
+          >{/if}
       </div>
     {/if}
   {/if}
   {#if action === Action.NEW}
     <button
       on:click={() => {
-        messageAndLink = { qrcaption: null, qrlink: null, message: null };
         action = Action.ADD;
       }}
       class="mt-10 w-full bg-transparent hover:bg-emerald-500 text-emerald-700 font-semibold hover:text-white py-2 px-4 border border-emerald-500 hover:border-transparent rounded"
