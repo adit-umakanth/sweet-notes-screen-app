@@ -3,6 +3,8 @@
   import axios from "axios";
   import { fromShortcode } from "../util/CalcInstagramID";
 
+  const ig_url_re = /^https:\/\/www\.instagram\.com\/\w*\/(.*)\//;
+
   export let key;
   enum Action {
     NONE,
@@ -13,7 +15,7 @@
   }
   let action: Action = Action.NONE;
 
-  let selected_date: string = dayjs().format("YYYY-MM-DD");
+  let selected_date: string = dayjs().add(1, "day").format("YYYY-MM-DD");
   let messageAndLink = { qrcaption: "", qrlink: "", message: "" };
 
   $: {
@@ -45,6 +47,13 @@
   }
 
   function addMessageAndLink() {
+    let match = ig_url_re.exec(messageAndLink.qrlink);
+    if (match !== null && match.length == 2) {
+      let mediaCode = match[1];
+      messageAndLink.qrlink = `instagram://media?id=${fromShortcode(
+        mediaCode
+      )}`;
+    }
     axios({
       method: "post",
       url: `${import.meta.env.VITE_API_URL}/dml/${dayjs(selected_date).format(
