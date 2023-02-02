@@ -2,14 +2,19 @@
   export let key: string;
   let field_text: string = "";
 
+  function setKey() {
+    localStorage.setItem("ak", field_text);
+    key = field_text;
+  }
+
   $: {
     if (field_text.length > 10) {
-      key = field_text;
+      setKey();
     }
   }
 </script>
 
-<form on:submit|preventDefault={() => (key = field_text)}>
+<form on:submit|preventDefault={setKey}>
   <div class="grid grid-cols-1 gap-3 w-full">
     <input
       placeholder="API Key"

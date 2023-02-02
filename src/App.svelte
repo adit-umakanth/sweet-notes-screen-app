@@ -2,6 +2,11 @@
   import GetKey from "./lib/GetKey.svelte";
   import ViewNotes from "./lib/ViewNotes.svelte";
   let key: string;
+
+  let local_item = localStorage.getItem("ak");
+  if (local_item !== null) {
+    key = local_item;
+  }
 </script>
 
 <main>
