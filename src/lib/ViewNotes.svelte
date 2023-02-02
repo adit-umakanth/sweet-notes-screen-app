@@ -2,6 +2,7 @@
   import dayjs from "dayjs";
   import axios from "axios";
   import { fromShortcode } from "../util/CalcInstagramID";
+  import { wrapTextToLines } from "../util/CheckLines";
 
   const ig_url_re = /^https:\/\/www\.instagram\.com\/\w*\/(.*)\//;
 
@@ -47,6 +48,28 @@
   }
 
   function addMessageAndLink() {
+    for (let word of messageAndLink.message.split(" ")) {
+      if (word.length > 33) {
+        alert("Word in message is too long!");
+        return;
+      }
+    }
+    for (let word of messageAndLink.qrcaption.split(" ")) {
+      if (word.length > 37) {
+        alert("Word in QR caption is too long!");
+        return;
+      }
+    }
+    if (wrapTextToLines(messageAndLink.message, 33).length > 5) {
+      alert("Message is too long!");
+      return;
+    }
+
+    if (wrapTextToLines(messageAndLink.qrcaption, 37).length > 3) {
+      alert("QR caption is too long!");
+      return;
+    }
+
     let match = ig_url_re.exec(messageAndLink.qrlink);
     if (match !== null && match.length == 2) {
       let mediaCode = match[1];
