@@ -77,6 +77,8 @@
         mediaCode
       )}`;
     }
+    messageAndLink.message = messageAndLink.message.replaceAll("’", "'");
+    messageAndLink.qrcaption = messageAndLink.qrcaption.replaceAll("’", "'");
     axios({
       method: "post",
       url: `${import.meta.env.VITE_API_URL}/dml/${dayjs(selected_date).format(
